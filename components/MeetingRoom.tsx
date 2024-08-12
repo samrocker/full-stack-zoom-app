@@ -1,8 +1,8 @@
 import { cn } from "@/lib/utils";
 import {
   CallControls,
-  CallParticipantListing,
   CallParticipantsList,
+  CallStatsButton,
   PaginatedGridLayout,
   SpeakerLayout,
 } from "@stream-io/video-react-sdk";
@@ -15,11 +15,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LayoutList } from "lucide-react";
+import { LayoutList, User } from "lucide-react";
+import { Button } from "./ui/button";
+import { useSearchParams } from "next/navigation";
+import EndCallButton from "./EndCallButton";
 
-type CallLayoutType = "grid" | "speaker-left" | "speaker-right";
+type CallLayoutType = "grid" | "speaker-left" | "speaker-right" 
 
 const MeetingRoom = () => {
+  const searchParams = useSearchParams();
+  const personalRoom = !!searchParams.get('personal')
   const [layout, setLayout] = useState<CallLayoutType>("speaker-left");
   const [showParticipants, setShowParticipants] = useState(false);
 
@@ -62,13 +67,26 @@ const MeetingRoom = () => {
           </DropdownMenuTrigger>
           </div>
           <DropdownMenuContent className="border-dark-1 bg-dark-1 text-white">
-            {/* {[ 'grid', 'speaker-left','speaker-right' ].
-            map(item, index) => (
-              <div></div>
-            )} */}
-            <DropdownMenuSeparator />
+            {[ 'grid', 'speaker-left', 'speaker-right',].
+            map((item, index) => (
+              <div key={index}>
+                <DropdownMenuItem className="cursor-pointer" onClick={() => {
+                  setLayout(item.toLowerCase() as CallLayoutType);
+                }}>
+                  {item}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="border-dark-1" />
+              </div>
+            ))}
           </DropdownMenuContent>
         </DropdownMenu>
+        <CallStatsButton />
+        <Button onClick={() => {setShowParticipants((prev) => !prev)}}>
+          <div className="cursor-pointer rounded-2xl bg-[#19232d] px-4 py-2 hover:bg-[#4c535b] duration-200">
+            <User size={20} className="text-white" />
+          </div>
+        </Button>
+        {!personalRoom && <EndCallButton />}
       </div>
     </section>
   );
